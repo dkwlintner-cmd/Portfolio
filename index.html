@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Portfolio">
+<meta name="theme-color" content="#0f0f0f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Portfolio Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #0f0f0f;
+    --bg2: #1a1a1a;
+    --bg3: #242424;
+    --text: #f0f0f0;
+    --text2: #888;
+    --border: rgba(255,255,255,0.08);
+    --green: #34d399;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --amber: #fbbf24;
+    --teal: #2dd4bf;
+  }
+  html, body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; min-height: 100vh; }
+  .app { max-width: 430px; margin: 0 auto; padding: env(safe-area-inset-top, 48px) 16px env(safe-area-inset-bottom, 24px); }
+
+  /* Header */
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .header-left h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .header-left p { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+
+  /* Metric cards */
+  .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .metric-wide { grid-column: 1 / -1; }
+  .metric { background: var(--bg2); border-radius: 16px; padding: 14px 16px; }
+  .metric-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .metric-value { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+  .metric-sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
+  .up { color: var(--green); }
+  .down { color: var(--red); }
+
+  /* Section */
+  .section { margin-bottom: 20px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Chart card */
+  .card { background: var(--bg2); border-radius: 16px; padding: 16px; margin-bottom: 10px; }
+
+  /* Positions list */
+  .position { display: flex; align-items: center; padding: 12px 0; border-bottom: 0.5px solid var(--border); }
+  .position:last-child { border-bottom: none; }
+  .pos-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--text2); margin-right: 12px; flex-shrink: 0; }
+  .pos-info { flex: 1; }
+  .pos-name { font-size: 14px; font-weight: 500; }
+  .pos-sector { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .pos-right { text-align: right; }
+  .pos-value { font-size: 14px; font-weight: 600; }
+  .pos-change { font-size: 12px; margin-top: 2px; }
+
+  /* AI tips */
+  .ai-tip { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; margin-bottom: 8px; font-size: 13px; line-height: 1.5; }
+  .ai-tip:last-child { margin-bottom: 0; }
+  .ai-tip.warn { background: rgba(251,191,36,0.1); color: #fbbf24; }
+  .ai-tip.danger { background: rgba(248,113,113,0.1); color: #f87171; }
+  .ai-tip.good { background: rgba(52,211,153,0.1); color: #34d399; }
+  .ai-tip.info { background: rgba(96,165,250,0.1); color: #60a5fa; }
+  .ai-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .ai-text { flex: 1; }
+  .ai-text strong { display: block; font-weight: 600; margin-bottom: 2px; }
+
+  /* Legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Score bar */
+  .score-bar { height: 6px; background: var(--bg3); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #f87171, #fbbf24, #34d399); }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .tab { flex: 1; padding: 8px; background: var(--bg2); border: none; border-radius: 10px; color: var(--text2); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .tab.active { background: var(--blue); color: #000; }
+
+  /* Refresh btn */
+  .refresh-btn { background: var(--bg3); border: none; color: var(--text2); font-size: 12px; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>Portfolio</h1>
+      <p id="lastUpdate">Stand: wird geladen...</p>
+    </div>
+    <div class="avatar">D</div>
+  </div>
+
+  <!-- Metrics -->
+  <div class="metrics">
+    <div class="metric metric-wide">
+      <div class="metric-label">Gesamtwert</div>
+      <div class="metric-value" id="totalValue">2.696 €</div>
+      <div class="score-bar"><div class="score-fill" id="scoreBar" style="width:62%"></div></div>
+      <div class="metric-sub" id="totalSub">Diversifikations-Score: 62/100</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Gewinn/Verlust</div>
+      <div class="metric-value up" id="totalPnl">+216 €</div>
+      <div class="metric-sub up" id="totalPnlPct">+8.7%</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Heute</div>
+      <div class="metric-value down" id="todayPnl">−42 €</div>
+      <div class="metric-sub down">−1.5% heute</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Beste heute</div>
+      <div class="metric-value up">JPM</div>
+      <div class="metric-sub up">+2.94%</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Schlechteste</div>
+      <div class="metric-value down">SMHN</div>
+      <div class="metric-sub down">−15.75%</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('positions')">Positionen</button>
+    <button class="tab" onclick="showTab('charts')">Charts</button>
+    <button class="tab" onclick="showTab('ki')">KI-Tipps</button>
+  </div>
+
+  <!-- Tab: Positions -->
+  <div id="tab-positions" class="section">
+    <div class="card" id="positionsList"></div>
+  </div>
+
+  <!-- Tab: Charts -->
+  <div id="tab-charts" class="section" style="display:none">
+    <div class="card">
+      <div class="section-title" style="margin-bottom:12px">Sektor-Verteilung</div>
+      <div style="position:relative;height:200px">
+        <canvas id="sectorChart" role="img" aria-label="Sektor-Verteilung deines Portfolios"></canvas>
+      </div>
+      <div class="legend" id="sectorLegend"></div>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-bottom:12px">Positionen nach Wert</div>
+      <div style="position:relative;height:220px">
+        <canvas id="barChart" role="img" aria-label="Positionen nach Wert in Euro"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: KI -->
+  <div id="tab-ki" class="section" style="display:none">
+    <div class="card">
+      <div class="section-title" style="margin-bottom:12px">🤖 KI-Analyse</div>
+      <div class="ai-tip danger">
+        <span class="ai-icon">⚠️</span>
+        <div class="ai-text">
+          <strong>SUSS MicroTec −15.75%</strong>
+          Starker Tagesverlust. Prüfe ob Nachrichten dahinterstecken. Bei fehlenden Fundamentalgründen: nicht in Panik verkaufen.
+        </div>
+      </div>
+      <div class="ai-tip warn">
+        <span class="ai-icon">📊</span>
+        <div class="ai-text">
+          <strong>Klumpenrisiko Tech (62%)</strong>
+          Datadog, Vertiv, Roku — alle korrelieren stark. Ein Tech-Abschwung wie 2022 würde dich hart treffen.
+        </div>
+      </div>
+      <div class="ai-tip warn">
+        <span class="ai-icon">🔄</span>
+        <div class="ai-text">
+          <strong>ETF-Überschneidung</strong>
+          Dein Nasdaq-ETF enthält bereits Datadog, Micron & Roku. Du hast diese Wetten doppelt. Erwäge andere Einzelaktien.
+        </div>
+      </div>
+      <div class="ai-tip good">
+        <span class="ai-icon">✅</span>
+        <div class="ai-text">
+          <strong>Quanta Services — Halten</strong>
+          Profitiert vom KI-Rechenzentrum-Stromboom. Langfristig gut positioniert. Infrastruktur als Gegengewicht zu Tech ist smart.
+        </div>
+      </div>
+      <div class="ai-tip good">
+        <span class="ai-icon">✅</span>
+        <div class="ai-text">
+          <strong>JPMorgan Chase — Halten</strong>
+          Finanztitel als Diversifikation gut. Zinsniveau begünstigt Banken. Solide Position.
+        </div>
+      </div>
+      <div class="ai-tip info">
+        <span class="ai-icon">💡</span>
+        <div class="ai-text">
+          <strong>Idee: Healthcare oder Energie</strong>
+          Dir fehlen defensive Sektoren. Ein Healthcare-ETF oder Energietitel würde dein Portfolio stabiler machen.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const positions = [
+  { name: "Quanta Services", ticker: "QS", sector: "Infrastruktur", value: 497.44, change: -0.51, color: "#fbbf24" },
+  { name: "Datadog (A)", ticker: "DDOG", sector: "Technologie", value: 485.97, change: -2.81, color: "#60a5fa" },
+  { name: "Vertiv", ticker: "VRT", sector: "Technologie", value: 444.58, change: -0.76, color: "#60a5fa" },
+  { name: "Roku (A)", ticker: "ROKU", sector: "Technologie", value: 298.69, change: -0.44, color: "#60a5fa" },
+  { name: "JPMorgan Chase", ticker: "JPM", sector: "Finanzen", value: 257.36, change: 2.94, color: "#34d399" },
+  { name: "ACM Research", ticker: "ACMR", sector: "Halbleiter", value: 251.82, change: 0.96, color: "#a78bfa" },
+  { name: "Micron Technology", ticker: "MU", sector: "Halbleiter", value: 246.49, change: -1.42, color: "#a78bfa" },
+  { name: "SUSS MicroTec", ticker: "SMHN", sector: "Halbleiter", value: 213.99, change: -15.75, color: "#a78bfa" },
+];
+
+const sectorColors = { "Technologie": "#60a5fa", "Halbleiter": "#a78bfa", "Finanzen": "#34d399", "Infrastruktur": "#fbbf24" };
+
+// Positions list
+const list = document.getElementById('positionsList');
+positions.forEach(p => {
+  const div = document.createElement('div');
+  div.className = 'position';
+  const changeClass = p.change >= 0 ? 'up' : 'down';
+  const arrow = p.change >= 0 ? '▲' : '▼';
+  div.innerHTML = `
+    <div class="pos-icon" style="color:${p.color}">${p.ticker}</div>
+    <div class="pos-info">
+      <div class="pos-name">${p.name}</div>
+      <div class="pos-sector">${p.sector}</div>
+    </div>
+    <div class="pos-right">
+      <div class="pos-value">${p.value.toFixed(2)} €</div>
+      <div class="pos-change ${changeClass}">${arrow} ${Math.abs(p.change).toFixed(2)}%</div>
+    </div>`;
+  list.appendChild(div);
+});
+
+// Sector chart
+const sectorTotals = {};
+positions.forEach(p => sectorTotals[p.sector] = (sectorTotals[p.sector] || 0) + p.value);
+const secLabels = Object.keys(sectorTotals);
+const secValues = secLabels.map(s => parseFloat(sectorTotals[s].toFixed(2)));
+const secColors = secLabels.map(s => sectorColors[s]);
+const total = secValues.reduce((a,b) => a+b, 0);
+
+const legend = document.getElementById('sectorLegend');
+secLabels.forEach((s, i) => {
+  const pct = (secValues[i] / total * 100).toFixed(0);
+  legend.innerHTML += `<span class="legend-item"><span class="legend-dot" style="background:${secColors[i]}"></span>${s} ${pct}%</span>`;
+});
+
+new Chart(document.getElementById('sectorChart'), {
+  type: 'doughnut',
+  data: { labels: secLabels, datasets: [{ data: secValues, backgroundColor: secColors, borderWidth: 0 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '60%' }
+});
+
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: positions.map(p => p.ticker),
+    datasets: [{ data: positions.map(p => p.value), backgroundColor: positions.map(p => p.color), borderRadius: 6, borderSkipped: false }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#888', font: { size: 11 } } },
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888', font: { size: 11 }, callback: v => v + '€' } }
+    }
+  }
+});
+
+// Tabs
+function showTab(name) {
+  ['positions','charts','ki'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((btn, i) => {
+    btn.classList.toggle('active', ['positions','charts','ki'][i] === name);
+  });
+}
+
+// Date
+document.getElementById('lastUpdate').textContent = 'Stand: ' + new Date().toLocaleDateString('de-AT', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+// Service Worker
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+</script>
+</body>
+</html>
