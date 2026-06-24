@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mein Portfolio">
+<meta name="theme-color" content="#090e1a">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Portfolio · David</title>
+<style>
+:root {
+  --bg0: #090e1a;
+  --bg1: #111827;
+  --bg2: #1a2235;
+  --bg3: #243048;
+  --accent: #3b82f6;
+  --accent2: #6366f1;
+  --green: #10b981;
+  --red: #ef4444;
+  --amber: #f59e0b;
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #475569;
+  --border: rgba(255,255,255,0.07);
+  --radius: 14px;
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { background: var(--bg0); }
+body { font-family: var(--font); color: var(--text); background: var(--bg0); min-height: 100vh; overflow-x: hidden; }
+
+/* Layout */
+.app { max-width: 430px; margin: 0 auto; padding-bottom: 90px; }
+.safe-top { height: env(safe-area-inset-top, 44px); }
+
+/* Header */
+.header { padding: 12px 20px 16px; display: flex; align-items: center; justify-content: space-between; }
+.header-title { font-size: 13px; font-weight: 600; color: var(--text2); letter-spacing: 0.06em; text-transform: uppercase; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+
+/* Hero card */
+.hero { margin: 0 16px 16px; background: linear-gradient(135deg, #1e3a5f 0%, #1a1f3a 100%); border-radius: 20px; padding: 20px; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(59,130,246,0.12); }
+.hero-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+.hero-value { font-size: 38px; font-weight: 700; letter-spacing: -1px; color: #fff; }
+.hero-sub { display: flex; gap: 16px; margin-top: 12px; }
+.hero-stat { }
+.hero-stat-val { font-size: 16px; font-weight: 600; }
+.hero-stat-label { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 1px; }
+.up { color: var(--green); }
+.down { color: var(--red); }
+.neutral { color: var(--amber); }
+
+/* Nav tabs */
+.nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: rgba(9,14,26,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 0.5px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 16px); z-index: 100; }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 4px 4px; gap: 3px; background: none; border: none; color: var(--text3); cursor: pointer; font-size: 10px; font-weight: 500; transition: color 0.15s; }
+.nav-btn.active { color: var(--accent); }
+.nav-icon { font-size: 20px; line-height: 1; }
+
+/* Section */
+.section { padding: 0 16px; margin-bottom: 20px; }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; }
+.section-badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; }
+.badge-green { background: rgba(16,185,129,0.15); color: var(--green); }
+.badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
+.badge-amber { background: rgba(245,158,11,0.15); color: var(--amber); }
+.badge-blue { background: rgba(59,130,246,0.15); color: var(--accent); }
+
+/* Cards */
+.card { background: var(--bg1); border-radius: var(--radius); border: 0.5px solid var(--border); overflow: hidden; }
+.card + .card { margin-top: 10px; }
+
+/* Position row */
+.pos-row { display: flex; align-items: center; padding: 13px 16px; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: background 0.1s; }
+.pos-row:last-child { border-bottom: none; }
+.pos-row:active { background: var(--bg2); }
+.pos-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; margin-right: 12px; flex-shrink: 0; letter-spacing: -0.5px; }
+.pos-main { flex: 1; min-width: 0; }
+.pos-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pos-meta { font-size: 11px; color: var(--text2); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+.signal-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.pos-right { text-align: right; flex-shrink: 0; }
+.pos-value { font-size: 14px; font-weight: 600; }
+.pos-change { font-size: 12px; margin-top: 2px; }
+
+/* Swing signal card */
+.signal-card { background: var(--bg1); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 14px 16px; margin-bottom: 10px; }
+.signal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.signal-name { font-size: 14px; font-weight: 600; }
+.signal-action { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.action-buy { background: rgba(16,185,129,0.15); color: var(--green); }
+.action-sell { background: rgba(239,68,68,0.15); color: var(--red); }
+.action-hold { background: rgba(245,158,11,0.15); color: var(--amber); }
+.signal-bars { display: flex; gap: 8px; margin-bottom: 10px; }
+.signal-bar-item { flex: 1; }
+.signal-bar-label { font-size: 10px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.signal-bar-track { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+.signal-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+.signal-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+/* Risk calculator */
+.risk-calc { background: var(--bg1); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 16px; }
+.risk-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.risk-label { font-size: 13px; color: var(--text2); }
+.risk-value { font-size: 16px; font-weight: 700; }
+.slider-wrap { margin-bottom: 16px; }
+.slider-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 8px; }
+input[type=range] { width: 100%; -webkit-appearance: none; height: 4px; border-radius: 2px; background: var(--bg3); outline: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+.risk-result { background: var(--bg2); border-radius: 10px; padding: 12px 14px; }
+.risk-result-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+.risk-result-row:not(:last-child) { border-bottom: 0.5px solid var(--border); }
+
+/* Watchlist */
+.watch-row { display: flex; align-items: center; padding: 12px 16px; border-bottom: 0.5px solid var(--border); }
+.watch-row:last-child { border-bottom: none; }
+.watch-ticker { font-size: 13px; font-weight: 700; width: 55px; color: var(--accent); }
+.watch-name { flex: 1; font-size: 13px; }
+.watch-reason { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.watch-signal { font-size: 11px; padding: 3px 8px; border-radius: 20px; }
+
+/* AI Chat */
+.chat-wrap { display: flex; flex-direction: column; height: calc(100vh - 260px); }
+.chat-messages { flex: 1; overflow-y: auto; padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
+.chat-messages::-webkit-scrollbar { display: none; }
+.msg { max-width: 85%; }
+.msg-ai { align-self: flex-start; }
+.msg-user { align-self: flex-end; }
+.msg-bubble { padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
+.msg-ai .msg-bubble { background: var(--bg2); color: var(--text); border-bottom-left-radius: 4px; }
+.msg-user .msg-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+.msg-name { font-size: 10px; color: var(--text3); margin-bottom: 4px; padding: 0 4px; }
+.msg-user .msg-name { text-align: right; }
+.chat-input-wrap { padding: 12px 16px; display: flex; gap: 10px; align-items: flex-end; }
+.chat-input { flex: 1; background: var(--bg2); border: 0.5px solid var(--border); border-radius: 20px; padding: 10px 16px; color: var(--text); font-size: 14px; font-family: var(--font); resize: none; outline: none; max-height: 100px; }
+.chat-input::placeholder { color: var(--text3); }
+.chat-send { width: 38px; height: 38px; border-radius: 50%; background: var(--accent); border: none; color: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity 0.15s; }
+.chat-send:disabled { opacity: 0.4; }
+.quick-btns { display: flex; gap: 6px; padding: 0 16px 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.quick-btns::-webkit-scrollbar { display: none; }
+.quick-btn { white-space: nowrap; padding: 6px 12px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: 16px; color: var(--text2); font-size: 12px; cursor: pointer; flex-shrink: 0; }
+.quick-btn:active { background: var(--bg3); }
+
+/* Loading dots */
+.typing { display: flex; gap: 4px; align-items: center; padding: 12px 14px; }
+.typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: bounce 1.2s infinite; }
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+
+/* Page visibility */
+.page { display: none; }
+.page.active { display: block; }
+
+/* Chart */
+canvas { max-width: 100%; }
+
+/* Misc */
+.divider { height: 0.5px; background: var(--border); margin: 0 16px 20px; }
+.empty-state { text-align: center; padding: 30px; color: var(--text2); font-size: 13px; }
+
+.news-item { padding: 13px 16px; border-bottom: 0.5px solid var(--border); }
+.news-item:last-child { border-bottom: none; }
+.news-ticker { font-size: 10px; font-weight: 700; color: var(--accent); margin-bottom: 3px; }
+.news-title { font-size: 13px; line-height: 1.4; }
+.news-time { font-size: 11px; color: var(--text3); margin-top: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="safe-top"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <span class="header-title" id="pageTitle">Portfolio</span>
+    <div class="header-right">
+      <span style="font-size:11px;color:var(--text3)" id="lastUpdate"></span>
+      <div class="avatar">D</div>
+    </div>
+  </div>
+
+  <!-- PAGE: PORTFOLIO -->
+  <div id="page-portfolio" class="page active">
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-label">Gesamtwert</div>
+      <div class="hero-value">2.696 €</div>
+      <div class="hero-sub">
+        <div class="hero-stat">
+          <div class="hero-stat-val up">+216 €</div>
+          <div class="hero-stat-label">Gesamt G/V</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val up">+8.7%</div>
+          <div class="hero-stat-label">Rendite</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val down">−42 €</div>
+          <div class="hero-stat-label">Heute</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sektor-Verteilung Mini -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Sektor-Mix</span>
+        <span class="section-badge badge-amber">Tech-lastig</span>
+      </div>
+      <div class="card" style="padding:14px 16px">
+        <canvas id="sectorBar" height="60" role="img" aria-label="Sektor-Verteilung: Technologie 56%, Halbleiter 26%, Infrastruktur 18%, Finanzen 10%"></canvas>
+        <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap">
+          <span style="font-size:11px;color:var(--text2)"><span style="color:#60a5fa">■</span> Tech 56%</span>
+          <span style="font-size:11px;color:var(--text2)"><span style="color:#a78bfa">■</span> Halbleiter 26%</span>
+          <span style="font-size:11px;color:var(--text2)"><span style="color:#f59e0b">■</span> Infra 18%</span>
+          <span style="font-size:11px;color:var(--text2)"><span style="color:#10b981">■</span> Finanzen 10%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Positionen -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Positionen</span>
+        <span style="font-size:12px;color:var(--text2)">8 Aktien</span>
+      </div>
+      <div class="card" id="posList"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: SWING TRADING -->
+  <div id="page-swing" class="page">
+    <div style="height:16px"></div>
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Signale heute</span>
+        <span class="section-badge badge-blue">Swing 3–14 Tage</span>
+      </div>
+      <div id="swingSignals"></div>
+    </div>
+
+    <!-- Risk Calculator -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Risiko-Kalkulator</span>
+      </div>
+      <div class="risk-calc">
+        <div class="slider-wrap">
+          <div class="slider-label"><span>Kapital</span><span id="capitalVal">3.000 €</span></div>
+          <input type="range" id="capitalSlider" min="500" max="10000" step="100" value="3000" oninput="updateRisk()">
+        </div>
+        <div class="slider-wrap">
+          <div class="slider-label"><span>Risiko pro Trade</span><span id="riskVal">2%</span></div>
+          <input type="range" id="riskSlider" min="0.5" max="5" step="0.5" value="2" oninput="updateRisk()">
+        </div>
+        <div class="slider-wrap">
+          <div class="slider-label"><span>Stop-Loss</span><span id="stopVal">5%</span></div>
+          <input type="range" id="stopSlider" min="2" max="15" step="1" value="5" oninput="updateRisk()">
+        </div>
+        <div class="risk-result" id="riskResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: WATCHLIST -->
+  <div id="page-watch" class="page">
+    <div style="height:16px"></div>
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Watchlist</span>
+        <span style="font-size:12px;color:var(--text2)">KI-Picks</span>
+      </div>
+      <div class="card" id="watchList"></div>
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">News</span>
+      </div>
+      <div class="card" id="newsList"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: KI CHAT -->
+  <div id="page-chat" class="page">
+    <div style="height:8px"></div>
+    <div class="quick-btns" id="quickBtns"></div>
+    <div class="chat-wrap">
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-wrap">
+        <textarea class="chat-input" id="chatInput" placeholder="Frag Warren Buffet..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="chat-send" id="sendBtn" onclick="sendMessage()">↑</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPage('portfolio',this)">
+    <span class="nav-icon">📊</span>Portfolio
+  </button>
+  <button class="nav-btn" onclick="showPage('swing',this)">
+    <span class="nav-icon">📈</span>Swing
+  </button>
+  <button class="nav-btn" onclick="showPage('watch',this)">
+    <span class="nav-icon">👁</span>Watchlist
+  </button>
+  <button class="nav-btn" onclick="showPage('chat',this)">
+    <span class="nav-icon">🤖</span>KI-Chat
+  </button>
+</nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const POSITIONS = [
+  { name:"Quanta Services", ticker:"QS",   sector:"Infrastruktur", value:497.44, change:-0.51, cost:420, color:"#f59e0b", rsi:52, macd:"bullish",  signal:"hold" },
+  { name:"Datadog (A)",     ticker:"DDOG", sector:"Technologie",   value:485.97, change:-2.81, cost:510, color:"#60a5fa", rsi:38, macd:"bearish",  signal:"watch" },
+  { name:"Vertiv",          ticker:"VRT",  sector:"Technologie",   value:444.58, change:-0.76, cost:380, color:"#60a5fa", rsi:45, macd:"neutral",  signal:"hold" },
+  { name:"Roku (A)",        ticker:"ROKU", sector:"Technologie",   value:298.69, change:-0.44, cost:320, color:"#60a5fa", rsi:42, macd:"bullish",  signal:"buy" },
+  { name:"JPMorgan Chase",  ticker:"JPM",  sector:"Finanzen",      value:257.36, change: 2.94, cost:210, color:"#10b981", rsi:61, macd:"bullish",  signal:"hold" },
+  { name:"ACM Research",    ticker:"ACMR", sector:"Halbleiter",    value:251.82, change: 0.96, cost:230, color:"#a78bfa", rsi:55, macd:"bullish",  signal:"buy" },
+  { name:"Micron Tech",     ticker:"MU",   sector:"Halbleiter",    value:246.49, change:-1.42, cost:280, color:"#a78bfa", rsi:40, macd:"neutral",  signal:"hold" },
+  { name:"SUSS MicroTec",   ticker:"SMHN", sector:"Halbleiter",    value:213.99, change:-15.75,cost:255, color:"#a78bfa", rsi:22, macd:"bearish",  signal:"sell" },
+];
+
+const WATCHLIST = [
+  { ticker:"NVDA",  name:"Nvidia",          reason:"KI-Infrastruktur, starkes Momentum",      signal:"buy",  signalClass:"action-buy" },
+  { ticker:"ASML",  name:"ASML Holding",    reason:"Monopol Chip-Lithographie, Rücksetzer",   signal:"watch",signalClass:"action-hold" },
+  { ticker:"LLY",   name:"Eli Lilly",       reason:"GLP-1 Boom, Healthcare fehlt dir",        signal:"buy",  signalClass:"action-buy" },
+  { ticker:"NEE",   name:"NextEra Energy",  reason:"Erneuerbare + KI-Strom, fehlt Portfolio", signal:"watch",signalClass:"action-hold" },
+  { ticker:"CRWD",  name:"CrowdStrike",     reason:"Cybersecurity Wachstum, Erholung läuft",  signal:"buy",  signalClass:"action-buy" },
+];
+
+const NEWS = [
+  { ticker:"SMHN",  title:"SUSS MicroTec: Auftragseingang schwächer als erwartet — Analysten senken Ziel", time:"Heute, 09:12" },
+  { ticker:"DDOG",  title:"Datadog schlägt Quartalszahlen, aber Guidance enttäuscht leicht", time:"Gestern, 22:45" },
+  { ticker:"JPM",   title:"JPMorgan profitiert von höheren Zinsen — starkes Q2", time:"Gestern, 18:30" },
+  { ticker:"MU",    title:"Micron: Speicherchip-Nachfrage durch KI-Rechenzentren boomt", time:"Vor 2 Tagen" },
+  { ticker:"ROKU",  title:"Roku wächst im Streaming-Werbemarkt, Aktie im Erholungsmodus", time:"Vor 2 Tagen" },
+];
+
+// ── PORTFOLIO PAGE ────────────────────────────────────────────────────────────
+function renderPositions() {
+  const list = document.getElementById('posList');
+  POSITIONS.forEach(p => {
+    const pnl = p.value - p.cost;
+    const pnlPct = (pnl / p.cost * 100).toFixed(1);
+    const changeClass = p.change >= 0 ? 'up' : 'down';
+    const pnlClass = pnl >= 0 ? 'up' : 'down';
+    const signalColor = p.signal === 'buy' ? '#10b981' : p.signal === 'sell' ? '#ef4444' : '#f59e0b';
+    const div = document.createElement('div');
+    div.className = 'pos-row';
+    div.innerHTML = `
+      <div class="pos-icon" style="color:${p.color}">${p.ticker}</div>
+      <div class="pos-main">
+        <div class="pos-name">${p.name}</div>
+        <div class="pos-meta">
+          <span class="signal-dot" style="background:${signalColor}"></span>
+          ${p.sector} · RSI ${p.rsi}
+        </div>
+      </div>
+      <div class="pos-right">
+        <div class="pos-value">${p.value.toFixed(2)} €</div>
+        <div class="pos-change ${changeClass}">${p.change >= 0 ? '▲' : '▼'} ${Math.abs(p.change)}%</div>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function renderSectorBar() {
+  const sectors = {};
+  POSITIONS.forEach(p => sectors[p.sector] = (sectors[p.sector]||0) + p.value);
+  const total = Object.values(sectors).reduce((a,b)=>a+b,0);
+  const labels = Object.keys(sectors);
+  const values = labels.map(s => parseFloat((sectors[s]/total*100).toFixed(1)));
+  const colors = { Technologie:"#60a5fa", Halbleiter:"#a78bfa", Infrastruktur:"#f59e0b", Finanzen:"#10b981" };
+  new Chart(document.getElementById('sectorBar'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: values, backgroundColor: labels.map(l=>colors[l]), borderRadius: 6, borderSkipped: false }] },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { display: false, max: 100 },
+        y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// ── SWING PAGE ────────────────────────────────────────────────────────────────
+const SWING_DATA = {
+  ROKU: { signal:"buy", reason:"RSI 42 erholt sich von überverkauft. MACD Kreuzung bullish. Streaming-Werbung erholt sich. Entry: aktuell. Ziel: +12–18% in 7–10 Tagen. Stop: −5%.", momentum:65, trend:55, volume:70 },
+  ACMR: { signal:"buy", reason:"Halbleiter-Nachfrage durch KI boomt. RSI 55 mit Aufwärtsmomentum. Solide Quartalszahlen. Entry: Rücksetzer auf Support. Ziel: +10–15%. Stop: −5%.", momentum:72, trend:68, volume:60 },
+  SMHN: { signal:"sell", reason:"RSI 22 — überverkauft, aber fundamentaler Druck durch schwachen Auftragseingang. Stopp-Marke wurde unterschritten. Verluste begrenzen empfohlen.", momentum:20, trend:18, volume:80 },
+  JPM:  { signal:"hold", reason:"Starkes Quartal, aber RSI 61 nähert sich überkauft. Halten, aber kein Nachkauf jetzt. Warte auf Konsolidierung für besseren Entry.", momentum:60, trend:65, volume:45 },
+  QS:   { signal:"hold", reason:"Stabiler Infrastruktur-Titel. RSI neutral bei 52. Kein klares Signal für Trade, aber langfristig attraktiv. Halten.", momentum:52, trend:58, volume:40 },
+};
+
+function renderSwingSignals() {
+  const container = document.getElementById('swingSignals');
+  Object.entries(SWING_DATA).forEach(([ticker, d]) => {
+    const pos = POSITIONS.find(p => p.ticker === ticker);
+    const actionClass = d.signal === 'buy' ? 'action-buy' : d.signal === 'sell' ? 'action-sell' : 'action-hold';
+    const actionLabel = d.signal === 'buy' ? '▲ KAUFEN' : d.signal === 'sell' ? '▼ VERKAUFEN' : '● HALTEN';
+    const div = document.createElement('div');
+    div.className = 'signal-card';
+    div.innerHTML = `
+      <div class="signal-header">
+        <div>
+          <div class="signal-name">${ticker} ${pos ? '· ' + pos.name : ''}</div>
+        </div>
+        <span class="signal-action ${actionClass}">${actionLabel}</span>
+      </div>
+      <div class="signal-bars">
+        <div class="signal-bar-item">
+          <div class="signal-bar-label">Momentum</div>
+          <div class="signal-bar-track"><div class="signal-bar-fill" style="width:${d.momentum}%;background:${d.momentum>60?'#10b981':d.momentum>40?'#f59e0b':'#ef4444'}"></div></div>
+        </div>
+        <div class="signal-bar-item">
+          <div class="signal-bar-label">Trend</div>
+          <div class="signal-bar-track"><div class="signal-bar-fill" style="width:${d.trend}%;background:${d.trend>60?'#10b981':d.trend>40?'#f59e0b':'#ef4444'}"></div></div>
+        </div>
+        <div class="signal-bar-item">
+          <div class="signal-bar-label">Volumen</div>
+          <div class="signal-bar-track"><div class="signal-bar-fill" style="width:${d.volume}%;background:#60a5fa"></div></div>
+        </div>
+      </div>
+      <div class="signal-text">${d.reason}</div>`;
+    container.appendChild(div);
+  });
+}
+
+function updateRisk() {
+  const capital = parseInt(document.getElementById('capitalSlider').value);
+  const risk = parseFloat(document.getElementById('riskSlider').value);
+  const stop = parseFloat(document.getElementById('stopSlider').value);
+  document.getElementById('capitalVal').textContent = capital.toLocaleString('de-AT') + ' €';
+  document.getElementById('riskVal').textContent = risk + '%';
+  document.getElementById('stopVal').textContent = stop + '%';
+  const maxLoss = (capital * risk / 100).toFixed(2);
+  const posSize = (capital * risk / 100 / (stop / 100)).toFixed(2);
+  const shares = Math.floor(posSize / 50);
+  document.getElementById('riskResult').innerHTML = `
+    <div class="risk-result-row"><span style="color:var(--text2)">Max. Verlust pro Trade</span><span class="down" style="font-weight:600">${maxLoss} €</span></div>
+    <div class="risk-result-row"><span style="color:var(--text2)">Empfohlene Positionsgröße</span><span style="font-weight:600">${parseFloat(posSize).toLocaleString('de-AT')} €</span></div>
+    <div class="risk-result-row"><span style="color:var(--text2)">Trades bis Kapital weg</span><span class="up" style="font-weight:600">${Math.floor(100/risk)} Trades</span></div>
+    <div class="risk-result-row" style="border:none"><span style="color:var(--text2);font-size:11px">Bei ${stop}% Stop-Loss und ${risk}% Risiko</span></div>`;
+}
+
+// ── WATCHLIST PAGE ────────────────────────────────────────────────────────────
+function renderWatchlist() {
+  const list = document.getElementById('watchList');
+  WATCHLIST.forEach(w => {
+    const div = document.createElement('div');
+    div.className = 'watch-row';
+    div.innerHTML = `
+      <div class="watch-ticker">${w.ticker}</div>
+      <div style="flex:1">
+        <div class="watch-name">${w.name}</div>
+        <div class="watch-reason">${w.reason}</div>
+      </div>
+      <span class="watch-signal ${w.signalClass}" style="margin-left:8px">${w.signal === 'buy' ? '▲ Buy' : '◆ Watch'}</span>`;
+    list.appendChild(div);
+  });
+  const newsList = document.getElementById('newsList');
+  NEWS.forEach(n => {
+    const div = document.createElement('div');
+    div.className = 'news-item';
+    div.innerHTML = `<div class="news-ticker">${n.ticker}</div><div class="news-title">${n.title}</div><div class="news-time">${n.time}</div>`;
+    newsList.appendChild(div);
+  });
+}
+
+// ── KI CHAT ───────────────────────────────────────────────────────────────────
+const PORTFOLIO_CONTEXT = `Du bist ein erfahrener Swing-Trading Berater im Stil von Warren Buffet — geduldig, analytisch, direkt. 
+Antworte immer auf Deutsch, kurz und präzise (max 4 Sätze). Kein Disclaimer-Spam.
+Das Portfolio von David:
+- Quanta Services (QS): 497€, −0.51% heute, RSI 52, Signal: HALTEN
+- Datadog (DDOG): 486€, −2.81% heute, RSI 38, Signal: BEOBACHTEN  
+- Vertiv (VRT): 445€, −0.76% heute, RSI 45, Signal: HALTEN
+- Roku (ROKU): 299€, −0.44% heute, RSI 42, Signal: KAUFEN
+- JPMorgan Chase (JPM): 257€, +2.94% heute, RSI 61, Signal: HALTEN
+- ACM Research (ACMR): 252€, +0.96% heute, RSI 55, Signal: KAUFEN
+- Micron Technology (MU): 246€, −1.42% heute, RSI 40, Signal: HALTEN
+- SUSS MicroTec (SMHN): 214€, −15.75% heute, RSI 22, Signal: VERKAUFEN
+Gesamtwert: 2.696€. Tech-lastig (56%). Swing-Trading Horizont: 3-14 Tage.`;
+
+let chatHistory = [];
+
+const QUICK_QUESTIONS = [
+  "Was soll ich jetzt tun?",
+  "Warum SMHN verkaufen?",
+  "Ist ROKU ein guter Einstieg?",
+  "Wie diversifiziere ich besser?",
+  "Wie viel in einen Trade?",
+];
+
+function renderQuickBtns() {
+  const wrap = document.getElementById('quickBtns');
+  QUICK_QUESTIONS.forEach(q => {
+    const btn = document.createElement('button');
+    btn.className = 'quick-btn';
+    btn.textContent = q;
+    btn.onclick = () => { document.getElementById('chatInput').value = q; sendMessage(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function addMessage(role, text) {
+  const wrap = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `msg msg-${role === 'user' ? 'user' : 'ai'}`;
+  div.innerHTML = `
+    <div class="msg-name">${role === 'user' ? 'Du' : '🤖 Warren'}</div>
+    <div class="msg-bubble">${text}</div>`;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  return div;
+}
+
+function addTyping() {
+  const wrap = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai';
+  div.id = 'typing-indicator';
+  div.innerHTML = `<div class="msg-name">🤖 Warren</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('sendBtn').disabled = true;
+
+  addMessage('user', text);
+  chatHistory.push({ role: 'user', content: text });
+  addTyping();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: PORTFOLIO_CONTEXT,
+        messages: chatHistory
+      })
+    });
+    const data = await response.json();
+    const reply = data.content?.[0]?.text || 'Fehler beim Laden der Antwort.';
+    document.getElementById('typing-indicator')?.remove();
+    addMessage('ai', reply);
+    chatHistory.push({ role: 'assistant', content: reply });
+  } catch(e) {
+    document.getElementById('typing-indicator')?.remove();
+    addMessage('ai', 'Verbindungsfehler. Bitte erneut versuchen.');
+  }
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+function autoResize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+const PAGE_TITLES = { portfolio: 'Portfolio', swing: 'Swing Trading', watch: 'Watchlist & News', chat: 'KI-Berater' };
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('pageTitle').textContent = PAGE_TITLES[name];
+  window.scrollTo(0, 0);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('de-AT', {hour:'2-digit',minute:'2-digit'});
+renderPositions();
+renderSectorBar();
+renderSwingSignals();
+updateRisk();
+renderWatchlist();
+renderQuickBtns();
+
+// Welcome message
+setTimeout(() => {
+  addMessage('ai', 'Grüß dich David! Ich bin dein persönlicher Portfolio-Berater. Dein größtes Thema heute: SUSS MicroTec mit −15.75%. Stell mir eine Frage zu deinem Portfolio oder nutze die Schnell-Buttons oben.');
+}, 300);
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
